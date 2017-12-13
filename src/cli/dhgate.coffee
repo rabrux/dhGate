@@ -3,6 +3,7 @@ args = require 'args'
 args
   .command 'init', 'Initialize dhGate project'
   .command 'task', 'Creates new task file'
+  .command 'update', 'After reinitialize project, it rebuilds ecosystem file'
   .examples [
     {
       usage : 'dhgate init --app app --port 1234'
