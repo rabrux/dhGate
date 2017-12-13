@@ -1,9 +1,0 @@
-{
-  "coffee": {
-    "source": [
-      "src/*.coffee",
-      "src/**/*.coffee"
-    ],
-    "dest": "bundle"
-  }
-}
