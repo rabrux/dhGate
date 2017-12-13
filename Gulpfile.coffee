@@ -13,7 +13,6 @@ gulp.task 'build', ->
       console.log err.message
       @emit 'end'
     )
-    #.pipe uglify()
     .pipe gulp.dest conf.dest
   return
 

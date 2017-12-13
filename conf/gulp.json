@@ -5,9 +5,5 @@
       "src/**/*.coffee"
     ],
     "dest": "bundle"
-  },
-  "dist": [
-    "bundle/**/*.js",
-    "bundle/*.js"
-  ]
+  }
 }
