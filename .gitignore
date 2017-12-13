@@ -125,3 +125,10 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.gitignore.io/api/osx,vim,node,windows
+
+bundle
+
+# tester
+app
+.dhgate.json
+ecosystem.json
