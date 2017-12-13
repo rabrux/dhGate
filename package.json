@@ -29,5 +29,13 @@
     "gulp": "^3.9.1",
     "gulp-coffee": "^2.3.5",
     "gulp-watch": "^4.3.11"
+  },
+  "dependencies": {
+    "args": "^3.0.8",
+    "colors": "^1.1.2",
+    "execa": "^0.8.0",
+    "pm2": "^2.8.0",
+    "randomstring": "^1.1.5",
+    "socket.io": "^2.0.4"
   }
 }
