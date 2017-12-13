@@ -1,0 +1,13 @@
+{
+  "coffee": {
+    "source": [
+      "src/*.coffee",
+      "src/**/*.coffee"
+    ],
+    "dest": "bundle"
+  },
+  "dist": [
+    "bundle/**/*.js",
+    "bundle/*.js"
+  ]
+}

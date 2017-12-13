@@ -1,0 +1,33 @@
+{
+  "name": "dhgate",
+  "version": "0.0.0",
+  "description": "Dark Hole Gateway for PM2 and Socket.io",
+  "main": "bundle/dhGate.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rabrux/dhGate.git"
+  },
+  "keywords": [
+    "pm2",
+    "socket.io",
+    "gateway",
+    "microservices",
+    "nodejs",
+    "coffeescript"
+  ],
+  "author": "rabrux",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rabrux/dhGate/issues"
+  },
+  "homepage": "https://github.com/rabrux/dhGate#readme",
+  "devDependencies": {
+    "coffeescript": "^2.1.0",
+    "gulp": "^3.9.1",
+    "gulp-coffee": "^2.3.5",
+    "gulp-watch": "^4.3.11"
+  }
+}
