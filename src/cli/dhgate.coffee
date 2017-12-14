@@ -6,8 +6,8 @@ args
   .command 'update', 'After reinitialize project, it rebuilds ecosystem file'
   .examples [
     {
-      usage : 'dhgate init --app app --port 1234'
-      description : 'initializes new project on directory \"app\" and listen port \"1234\"'
+      usage : 'dhgate init --src source --dist bundle --port 1234'
+      description : 'initializes new project on directory \"source\" and listen port \"1234\"'
     }
     {
       usage : 'dhgate task --name auth:login'

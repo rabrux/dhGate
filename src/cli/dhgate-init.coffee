@@ -4,27 +4,35 @@ fs     = require 'fs'
 colors = require 'colors'
 
 args
-  .option 'app', 'Application directory base path', 'app'
-  .option 'port', 'Application listen port', 1337
-  .example 'dhgate init --app app --port 1234', 'initializes new project on directory \"app\" and listen port \"1234\"'
+  .option 'src', 'app source directory', 'src'
+  .option 'dist', 'app production directory', 'dist'
+  .option 'port', 'app listen port', 1337
+  .example 'dhgate init --src source --dist bundle --port 1234', 'initializes new project on directory \"source\" and listen port \"1234\"'
 
 flags = args.parse process.argv
 
-# check app directory
-if not fs.existsSync( flags.app )
-  fs.mkdirSync flags.app
+# check src directory
+if not fs.existsSync( flags.src )
+  fs.mkdirSync flags.src
 
-console.log '->'.green, 'Application directory created at', flags.app.cyan
+console.log '->'.green, 'application directory created at', flags.src.cyan
 
 # write config file
-fs.writeFileSync '.dhgate.json', JSON.stringify( { root : flags.app, port : flags.port }, null, 2 )
+fs.writeFileSync '.dhgate.json', JSON.stringify( { root : flags.src, dist: flags.dist, port : flags.port }, null, 2 )
 
-console.log '->'.green, 'Configuration file created as', '.dhgate.json'.cyan
+console.log '->'.green, 'configuration file created as', '.dhgate.json'.cyan
 
-gatePath = path.join process.cwd(), flags.app, 'gate.coffee'
+# copy base gate to source dir
+gatePath = path.join process.cwd(), flags.src, 'gate.coffee'
+fs
+  .createReadStream path.join process.cwd(), 'assets', 'gate.coffee'
+  .pipe fs.createWriteStream gatePath
 
-gateContent = "{ dhGate } = require '../bundle/dhGate'\npath       = require 'path'\n\n\# config file\nconfig = require '../.dhgate.json'\n\n\# init gate\ngate = new dhGate config.port,\n  root : path.join __dirname\n\ngate.on 'connect', ( socket ) ->\n  console.log 'client connected', socket.id\n"
+console.log '->'.green, 'gate index file created at', flags.src.cyan
 
-fs.writeFileSync gatePath, gateContent
-console.log '->'.green, 'Gate index file created at', flags.app.cyan
+# copy gulpfile
+fs
+  .createReadStream path.join process.cwd(), 'assets', 'Gulpfile.coffee'
+  .pipe fs.createWriteStream path.join process.cwd(), 'Gulpfile.coffee'
 
+console.log '->'.green, 'gulpfile created, use "gulp" command to compile your app and "gulp dev" to watch and recompile'
