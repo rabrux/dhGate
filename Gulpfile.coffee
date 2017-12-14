@@ -10,7 +10,7 @@ gulp.task 'build', ->
       console.log err.message
       @emit 'end'
     )
-    .pipe gulp.dest 'bundle'
+    .pipe gulp.dest 'dist'
   return
 
 # watch on dev

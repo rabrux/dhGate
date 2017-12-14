@@ -26,14 +26,14 @@ console.log '->'.green, 'configuration file created as', '.dhgate.json'.cyan
 gatePath = path.join process.cwd(), flags.src, 'gate.coffee'
 
 fs
-  .createReadStream path.join process.cwd(), 'assets', 'gate.coffee'
+  .createReadStream path.join process.cwd(), 'node_modules', 'dhgate', 'assets', 'gate.coffee'
   .pipe fs.createWriteStream gatePath
 
 console.log '->'.green, 'gate index file created at', flags.src.cyan
 
 # copy gulpfile
 fs
-  .createReadStream path.join process.cwd(), 'assets', 'Gulpfile.coffee'
+  .createReadStream path.join process.cwd(), 'node_modules', 'dhgate', 'assets', 'Gulpfile.coffee'
   .pipe fs.createWriteStream path.join process.cwd(), 'Gulpfile.coffee'
 
 console.log '->'.green, 'gulpfile created, use "gulp" command to compile your app and "gulp dev" to watch and recompile'

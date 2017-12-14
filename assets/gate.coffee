@@ -1,4 +1,4 @@
-{ dhGate } = require '../bundle/dhGate'
+{ dhGate } = require 'dhgate'
 path       = require 'path'
 
 # config file
