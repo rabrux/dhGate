@@ -57,7 +57,7 @@ class dhGate extends io
   getTransactions : -> @_transactions
 
   findTransactionByType : ( type ) ->
-    @_transctions.filter ( el ) -> el.getTo() is type
+    @_transactions.filter ( el ) -> el.getTo() is type
 
   processTransaction : ( trans ) ->
     # load task
