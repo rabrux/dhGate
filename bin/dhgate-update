@@ -1,0 +1,16 @@
+#!/usr/bin/env node
+
+var path = require('path');
+var fs   = require('fs');
+
+var potentialPaths = [
+  path.join(process.cwd(), 'node_modules/dhgate/dist/cli'),
+  path.join(__dirname, '../dist/cli')
+];
+
+for (var i = 0, len = potentialPaths.length; i < len; i++) {
+  if (fs.existsSync(potentialPaths[i])) {
+    require(potentialPaths[i] + '/dhgate-update');
+    break;
+  }
+}
