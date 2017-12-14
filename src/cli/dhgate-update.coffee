@@ -40,7 +40,7 @@ for file in files
         watch       : true
         env :
           APP_NAME    : taskName
-          APP_ROOT    : config.root
+          APP_ROOT    : config.dist
           APP_PORT    : config.port
           APP_TIMEOUT : 2
 
