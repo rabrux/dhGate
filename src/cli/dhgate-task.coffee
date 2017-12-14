@@ -50,9 +50,10 @@ catch
   ecosystem =
     apps : []
 
-ecosystem.apps.push
+# create task entry
+task = 
   name   : flags.name
-  script : config.root + '/' + 'bundle/core/TaskClient.js'
+  script : 'bundle/core/TaskClient.js'
   merge_logs  : true
   autorestart : false
   watch       : true
@@ -61,6 +62,15 @@ ecosystem.apps.push
     APP_ROOT    : config.root
     APP_PORT    : config.port
     APP_TIMEOUT : 2
+
+# entry exists
+entry = ecosystem.apps.filter( ( el ) -> el.name is flags.name ).shift()
+
+if not entry
+  ecosystem.apps.push task
+else
+  index = ecosystem.apps.indexOf entry
+  ecosystem.apps.splice index, 1, task
 
 fs.writeFileSync ecoPath, JSON.stringify( ecosystem, null, 2 )
 console.log '->'.green, 'task', flags.name, 'added to ecosystem pm2 config file'
