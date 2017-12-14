@@ -59,7 +59,7 @@ task =
   watch       : true
   env :
     APP_NAME    : flags.name
-    APP_ROOT    : config.root
+    APP_ROOT    : config.dist
     APP_PORT    : config.port
     APP_TIMEOUT : 2
 
