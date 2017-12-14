@@ -24,6 +24,7 @@ class dhGate extends io
       socket.on 'register', ( room ) ->
         socket.join room
         console.log 'room created for task', room
+        it._rooms.splice it._rooms.indexOf( room ), 1
         transactions = it.findTransactionByType room
         for t in transactions
           it.to( room ).emit t.getEvent(), t
@@ -33,19 +34,28 @@ class dhGate extends io
       socket.on 'task', ( task ) ->
         trans = new Transaction new Task task, socket.id
 
-        # load task
-        if not it.findRoomByType( trans.getTo() )
-          it.registerTransaction trans
-          execa 'pm2', [ 'start', 'ecosystem.json', '--only', trans.getTo() ]
-        # emit task to be process
-        else
-          it
-            .to trans.getTo()
-            .emit trans.getEvent(), trans
+        it.processTransaction trans
 
+      socket.on 'forward', ( trans ) ->
+        trans = new Transaction trans
+
+        it.processTransaction trans
 
   # transaction functions
   getTransactions : -> @_transactions
+
+  processTransaction : ( trans ) ->
+    # load task
+    if not @findRoomByType( trans.getTo() )
+      # prevent load many
+      if @_rooms.indexOf( trans.getTo() ) is -1
+        # save room to prevent many
+        @_rooms.push trans.getTo()
+        @registerTransaction trans
+        execa 'pm2', [ 'start', 'ecosystem.json', '--only', trans.getTo() ]
+    # emit task to be process
+    else
+      @to( trans.getTo() ).emit trans.getEvent(), trans
 
   registerTransaction : ( trans ) ->
     console.log 'register transaction', trans.getId(), trans.getTo()
@@ -89,4 +99,6 @@ class dhGate extends io
   getRoot : -> @_root
 
 module.exports =
-  dhGate : dhGate
+  dhGate      : dhGate
+  Task        : Task
+  Transaction : Transaction
