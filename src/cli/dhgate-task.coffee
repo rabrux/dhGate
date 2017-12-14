@@ -38,7 +38,11 @@ if not fs.existsSync( modulePath )
 # create task file
 task = parts.shift()
 taskPath = path.join modulePath, task + '.coffee'
-fs.writeFileSync taskPath, "module.exports = ( transaction ) ->\r\n  \# code goes here..."
+
+fs
+  .createReadStream path.join process.cwd(), 'assets', 'task.coffee'
+  .pipe fs.createWriteStream taskPath
+
 console.log '->'.green, 'task', task.cyan, 'created for module', module.cyan
 
 # add function to ecosystem pm2 config file
