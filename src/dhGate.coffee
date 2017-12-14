@@ -36,7 +36,7 @@ class dhGate extends io
         # load task
         if not it.findRoomByType( trans.getTo() )
           it.registerTransaction trans
-          # execa 'pm2', [ 'start', it._processFile, '--only', trans.getTo(), '--', trans.getTo() ]
+          execa 'pm2', [ 'start', 'ecosystem.json', '--only', trans.getTo() ]
         # emit task to be process
         else
           it
