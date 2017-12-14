@@ -24,6 +24,7 @@ console.log '->'.green, 'configuration file created as', '.dhgate.json'.cyan
 
 # copy base gate to source dir
 gatePath = path.join process.cwd(), flags.src, 'gate.coffee'
+
 fs
   .createReadStream path.join process.cwd(), 'assets', 'gate.coffee'
   .pipe fs.createWriteStream gatePath

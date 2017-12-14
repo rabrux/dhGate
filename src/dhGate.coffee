@@ -1,6 +1,5 @@
 io    = require 'socket.io'
 execa = require 'execa'
-path  = require 'path'
 
 Transaction = require './core/Transaction'
 Task        = require './core/Task'
@@ -24,7 +23,9 @@ class dhGate extends io
       socket.on 'register', ( room ) ->
         socket.join room
         console.log 'room created for task', room
+        # remove room to reload if timeout
         it._rooms.splice it._rooms.indexOf( room ), 1
+        # emit transactions
         transactions = it.findTransactionByType room
         for t in transactions
           it.to( room ).emit t.getEvent(), t
@@ -41,8 +42,22 @@ class dhGate extends io
 
         it.processTransaction trans
 
+  # check if services path is a directory
+  checkRootPath : ( _path ) ->
+    if not _path
+      throw 'you must to set <services> directory'
+
+    fsh = new FSHelper _path
+    if not fsh.isDirectory()
+      throw '<services> path is not a directory'
+
+    @_root = _path
+
   # transaction functions
   getTransactions : -> @_transactions
+
+  findTransactionByType : ( type ) ->
+    @_transctions.filter ( el ) -> el.getTo() is type
 
   processTransaction : ( trans ) ->
     # load task
@@ -63,9 +78,6 @@ class dhGate extends io
     if isStacked.length is 0
       @_transactions.push trans
 
-  findTransactionByType : ( type ) ->
-    @_transactions.filter ( el ) -> el.getTo() is type
-
   removeTransactions : ( trans ) ->
     if trans instanceof Array
       for t in trans
@@ -75,26 +87,14 @@ class dhGate extends io
       @_transactions.splice index, 1
 
   # room functions
-  getRooms : -> @sockets.adapter.rooms
-
   findRoomByType : ( type ) ->
     @getRooms()[ type ]
 
+  getRooms : -> @sockets.adapter.rooms
 
   # init functions for transactions and rooms
-  initTransactions : -> @_transactions = []
   initRooms        : -> @_rooms = []
-
-  # check if services path is a directory
-  checkRootPath : ( _path ) ->
-    if not _path
-      throw 'you must to set <services> directory'
-
-    fsh = new FSHelper _path
-    if not fsh.isDirectory()
-      throw '<services> path is not a directory'
-
-    @_root = _path
+  initTransactions : -> @_transactions = []
 
   getRoot : -> @_root
 

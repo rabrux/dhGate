@@ -1,5 +1,4 @@
-rs = require 'randomstring'
-
+rs   = require 'randomstring'
 Task = require './Task'
 
 class Transaction
@@ -27,8 +26,8 @@ class Transaction
 
   generateId : -> rs.generate length : 15
 
-  getTo : -> @getTask().getTo()
   getEvent : -> @getTask().getEvent()
+  getTo    : -> @getTask().getTo()
 
   setId : ( @_id = @generateId() ) ->
   getId : -> @_id

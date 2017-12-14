@@ -1,4 +1,3 @@
-args   = require 'args'
 path   = require 'path'
 fs     = require 'fs'
 colors = require 'colors'

@@ -1,4 +1,5 @@
 rs = require 'randomstring'
+
 class Task
 
   constructor : ( task, sockId ) ->
