@@ -65,7 +65,7 @@
     };
 
     dhGate.prototype.findTransactionByType = function(type) {
-      return this._transctions.filter(function(el) {
+      return this._transactions.filter(function(el) {
         return el.getTo() === type;
       });
     };
