@@ -33,7 +33,7 @@ for file in files
       # create task entry
       task =
         name   : taskName
-        script : 'bundle/core/TaskClient.js'
+        script : 'node_modules/dhgate/dist/core/TaskClient.js'
         merge_logs  : true
         autorestart : false
         watch       : true

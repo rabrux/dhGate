@@ -1,4 +1,4 @@
-{ Task } = require '../../bundle/dhGate'
+{ Task } = require 'dhgate'
 
 module.exports = ( socket, transaction ) ->
 

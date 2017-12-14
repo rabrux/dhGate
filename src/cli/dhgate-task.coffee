@@ -40,7 +40,7 @@ task = parts.shift()
 taskPath = path.join modulePath, task + '.coffee'
 
 fs
-  .createReadStream path.join process.cwd(), 'assets', 'task.coffee'
+  .createReadStream path.join process.cwd(), 'node_modules', 'dhgate', 'assets', 'task.coffee'
   .pipe fs.createWriteStream taskPath
 
 console.log '->'.green, 'task', task.cyan, 'created for module', module.cyan
@@ -57,7 +57,7 @@ catch
 # create task entry
 task = 
   name   : flags.name
-  script : 'bundle/core/TaskClient.js'
+  script : 'node_modules/dhgate/dist/core/TaskClient.js'
   merge_logs  : true
   autorestart : false
   watch       : true
