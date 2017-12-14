@@ -4,7 +4,8 @@
   "description": "Dark Hole Gateway for PM2 and Socket.io",
   "main": "bundle/dhGate.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "gulp",
+    "dev": "gulp dev"
   },
   "repository": {
     "type": "git",
