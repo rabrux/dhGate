@@ -2,10 +2,16 @@
   "name": "dhgate",
   "version": "0.0.0",
   "description": "Dark Hole Gateway for PM2 and Socket.io",
-  "main": "bundle/dhGate.js",
+  "main": "dist/dhGate.js",
   "scripts": {
     "build": "gulp",
     "dev": "gulp dev"
+  },
+  "bin": {
+    "dhgate": "bin/dhgate",
+    "dhgate-init": "bin/dhgate-init",
+    "dhgate-task": "bin/dhgate-task",
+    "dhgate-update": "bin/dhgate-update"
   },
   "repository": {
     "type": "git",
