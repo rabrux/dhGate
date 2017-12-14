@@ -10,42 +10,50 @@ catch
   console.log "\n  Application is not initialized yet, please run init command before create task.".red
   process.exit 2
 
-# get current ecosystem file
+# ecosystem path
 ecoPath = path.join process.cwd(), 'ecosystem.json'
-try
-  ecosystem = require ecoPath
-catch
-  ecosystem =
-    apps : []
 
-for app in ecosystem.apps
-  app.env.APP_ROOT = config.root
-  app.env.APP_PORT = config.port
+# init empty ecosystem
+ecosystem =
+  apps : []
 
+# recursive load modules
+console.log '->'.green, 'looking for hand added modules'
+
+modules = path.join process.cwd(), config.root
+files   = fs.readdirSync modules
+
+for file in files
+  fullpath = path.join modules, file
+  f = fs.lstatSync fullpath
+  if f.isDirectory()
+    console.log '->'.green, 'load module', file.cyan
+    tasks = fs.readdirSync fullpath
+    for task in tasks
+      taskName = file + ':' + path.parse( task ).name
+      # create task entry
+      task =
+        name   : taskName
+        script : 'bundle/core/TaskClient.js'
+        merge_logs  : true
+        autorestart : false
+        watch       : true
+        env :
+          APP_NAME    : taskName
+          APP_ROOT    : config.root
+          APP_PORT    : config.port
+          APP_TIMEOUT : 2
+
+      # entry exists
+      entry = ecosystem.apps.filter( ( el ) -> el.name is taskName ).shift()
+
+      if not entry
+        ecosystem.apps.push task
+        console.log "\t->".green, 'task', taskName.cyan, 'added to ecosystem pm2 config file'
+      else
+        index = ecosystem.apps.indexOf entry
+        ecosystem.apps.splice index, 1, task
+
+# write ecosystem file
 fs.writeFileSync ecoPath, JSON.stringify( ecosystem, null, 2 )
-console.log '->'.green, 'updated ecosystem file'
-
-# args
-#   .option 'app', 'Application directory base path', 'app'
-#   .option 'port', 'Application listen port', 1337
-#   .example 'dhgate init --app app --port 1234', 'initializes new project on directory \"app\" and listen port \"1234\"'
-
-# flags = args.parse process.argv
-
-# # check app directory
-# if not fs.existsSync( flags.app )
-#   fs.mkdirSync flags.app
-
-# console.log '->'.green, 'Application directory created at', flags.app.cyan
-
-# # write config file
-# fs.writeFileSync '.dhgate.json', JSON.stringify( { root : flags.app, port : flags.port }, null, 2 )
-
-# console.log '->'.green, 'Configuration file created as', '.dhgate.json'.cyan
-
-# gatePath = path.join process.cwd(), flags.app, 'gate.coffee'
-
-# gateContent = "{ dhGate } = require '../bundle/dhGate'\npath       = require 'path'\n\n\# config file\nconfig = require '../.dhgate.json'\n\n\# init gate\ngate = new dhGate config.port,\n  root : path.join __dirname\n\ngate.on 'connect', ( socket ) ->\n  console.log 'client connected', socket.id\n"
-
-# fs.writeFileSync gatePath, gateContent
-# console.log '->'.green, 'Gate index file created at', flags.app.cyan
+console.log '->'.green, 'ecosystem updated with hand added modules'
