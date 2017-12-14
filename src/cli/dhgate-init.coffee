@@ -15,25 +15,6 @@ args
 
 flags = args.parse process.argv
 
-# verify npm file
-packageFile = path.join process.cwd(), 'package.json'
-cmd = if /^win/.test( process.platform ) then 'npm.cmd' else 'npm'
-if not fs.existsSync( packageFile )
-  child = exec cmd, [ 'init' ],
-    stdio : [
-      0
-      'pipe'
-      'pipe'
-    ]
-  child.stdout.on 'data', ( data ) ->
-    process.stdout.write data.toString()
-  child.stderr.on 'data', ( data ) ->
-    console.log 'err', data.toString()
-  child.on 'close', ( code ) ->
-    configure()
-else
-  configure()
-
 configure = ->
   # check src directory
   if not fs.existsSync( flags.src )
@@ -76,3 +57,22 @@ configure = ->
     console.log 'err', data.toString()
   child.on 'close', ( code ) ->
     console.log '->'.green, 'dev dependencies installed'
+
+# verify npm file
+packageFile = path.join process.cwd(), 'package.json'
+cmd = if /^win/.test( process.platform ) then 'npm.cmd' else 'npm'
+if not fs.existsSync( packageFile )
+  child = exec cmd, [ 'init' ],
+    stdio : [
+      0
+      'pipe'
+      'pipe'
+    ]
+  child.stdout.on 'data', ( data ) ->
+    process.stdout.write data.toString()
+  child.stderr.on 'data', ( data ) ->
+    console.log 'err', data.toString()
+  child.on 'close', ( code ) ->
+    configure()
+else
+  configure()
