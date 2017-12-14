@@ -5,8 +5,6 @@ moment = require 'moment'
 Transaction = require './Transaction'
 FSHelper    = require '../lib/FSHelper'
 
-console.log process.cwd()
-
 if not process.env.APP_PORT or not process.env.APP_ROOT or not process.env.APP_NAME
   throw 'app wrong'
 
@@ -38,7 +36,7 @@ client.on 'connect', ->
 client.on 'task', ( trans ) ->
   _timeout = moment().add( process.env.APP_TIMEOUT || 10, 'minutes' )
   trans = new Transaction trans
-  _process trans
+  _process client, trans
 
 # timeout
 tick = ->
