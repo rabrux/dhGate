@@ -19,29 +19,8 @@
 
   flags = args.parse(process.argv);
 
-  packageFile = path.join(process.cwd(), 'package.json');
-
-  cmd = /^win/.test(process.platform) ? 'npm.cmd' : 'npm';
-
-  if (!fs.existsSync(packageFile)) {
-    child = exec(cmd, ['init'], {
-      stdio: [0, 'pipe', 'pipe']
-    });
-    child.stdout.on('data', function(data) {
-      return process.stdout.write(data.toString());
-    });
-    child.stderr.on('data', function(data) {
-      return console.log('err', data.toString());
-    });
-    child.on('close', function(code) {
-      return configure();
-    });
-  } else {
-    configure();
-  }
-
   configure = function() {
-    var gatePath;
+    var child, gatePath;
     if (!fs.existsSync(flags.src)) {
       fs.mkdirSync(flags.src);
     }
@@ -71,5 +50,26 @@
       return console.log('->'.green, 'dev dependencies installed');
     });
   };
+
+  packageFile = path.join(process.cwd(), 'package.json');
+
+  cmd = /^win/.test(process.platform) ? 'npm.cmd' : 'npm';
+
+  if (!fs.existsSync(packageFile)) {
+    child = exec(cmd, ['init'], {
+      stdio: [0, 'pipe', 'pipe']
+    });
+    child.stdout.on('data', function(data) {
+      return process.stdout.write(data.toString());
+    });
+    child.stderr.on('data', function(data) {
+      return console.log('err', data.toString());
+    });
+    child.on('close', function(code) {
+      return configure();
+    });
+  } else {
+    configure();
+  }
 
 }).call(this);
