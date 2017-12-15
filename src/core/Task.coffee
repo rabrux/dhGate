@@ -33,6 +33,8 @@ class Task
         event : @getTo() + ':success'
     @_onSuccess = onSuccess
   getOnSuccess : -> @_onSuccess
+  successTo : -> @getOnSuccess().to
+  successEvent : -> @getOnSuccess().event
 
   setOnError : ( onError ) ->
     if typeof onError is 'string'
@@ -41,5 +43,7 @@ class Task
         event : @getTo() + ':error'
     @_onError = onError
   getOnError : -> @_onError
+  errorTo : -> @getOnError().to
+  errorEvent : -> @getOnError().event
 
 module.exports = Task
