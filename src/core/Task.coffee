@@ -46,7 +46,7 @@ class Task
   successEvent : -> @getOnSuccess().event
 
   setOnError : ( onError ) ->
-    @_onError = @setResponseEvent onSuccess, ':error'
+    @_onError = @setResponseEvent onError, ':error'
 
   getOnError : -> @_onError
 
