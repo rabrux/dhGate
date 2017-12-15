@@ -40,9 +40,6 @@
     child = exec(cmd, ['install', '--save-dev', 'gulp', 'gulp-coffee', 'gulp-watch', 'coffeescript'], {
       stdio: [0, 'pipe', 'pipe']
     });
-    child.stdout.on('data', function(data) {
-      return process.stdout.write(data.toString());
-    });
     child.stderr.on('data', function(data) {
       return console.log('err', data.toString());
     });
