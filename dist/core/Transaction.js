@@ -68,6 +68,13 @@
       return this._history;
     };
 
+    Transaction.prototype.genesis = function() {
+      if (this._history.length > 0) {
+        return this._history[0];
+      }
+      return void 0;
+    };
+
     Transaction.prototype.loadTasks = function(tasks) {
       var i, len, results, t;
       if (tasks == null) {
