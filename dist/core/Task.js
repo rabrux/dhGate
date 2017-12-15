@@ -87,7 +87,7 @@
     };
 
     Task.prototype.setOnError = function(onError) {
-      return this._onError = this.setResponseEvent(onSuccess, ':error');
+      return this._onError = this.setResponseEvent(onError, ':error');
     };
 
     Task.prototype.getOnError = function() {
