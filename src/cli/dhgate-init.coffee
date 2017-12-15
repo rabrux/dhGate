@@ -51,8 +51,6 @@ configure = ->
       'pipe'
       'pipe'
     ]
-  child.stdout.on 'data', ( data ) ->
-    process.stdout.write data.toString()
   child.stderr.on 'data', ( data ) ->
     console.log 'err', data.toString()
   child.on 'close', ( code ) ->
