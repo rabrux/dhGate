@@ -60,6 +60,12 @@ class dhGate extends io
     @_transactions.filter ( el ) -> el.getTo() is type
 
   processTransaction : ( trans ) ->
+    # is client
+    if @getClients()[ trans.getTo() ]
+      params = trans.getTask().params
+      return @to( trans.getTo() ).emit trans.getEvent(), params.doc if params.doc
+      return @to( trans.getTo() ).emit trans.getEvent(), params
+      
     # load task
     if not @findRoomByType( trans.getTo() )
       # prevent load many
@@ -91,6 +97,7 @@ class dhGate extends io
     @getRooms()[ type ]
 
   getRooms : -> @sockets.adapter.rooms
+  getClients : -> @sockets.clients().connected
 
   # init functions for transactions and rooms
   initRooms        : -> @_rooms = []
