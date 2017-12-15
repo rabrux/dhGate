@@ -26,23 +26,30 @@ class Task
   setParams : ( @params ) ->
   getParams : -> @params
 
+  setResponseEvent : ( ev, sufix = ':success' ) ->
+    if typeof ev is 'string'
+      eve =
+        to : ev
+      if ev.split( ':' ).length is 2
+        eve.event = 'task'
+      else
+        eve.event = @getTo() + sufix
+      return eve
+    ev
+
   setOnSuccess : ( onSuccess ) ->
-    if typeof onSuccess is 'string'
-      return @_onSuccess =
-        to    : onSuccess
-        event : @getTo() + ':success'
-    @_onSuccess = onSuccess
+    @_onSuccess = @setResponseEvent onSuccess
+
   getOnSuccess : -> @_onSuccess
+
   successTo : -> @getOnSuccess().to
   successEvent : -> @getOnSuccess().event
 
   setOnError : ( onError ) ->
-    if typeof onError is 'string'
-      return @_onError =
-        to    : onError
-        event : @getTo() + ':error'
-    @_onError = onError
+    @_onError = @setResponseEvent onSuccess, ':error'
+
   getOnError : -> @_onError
+
   errorTo : -> @getOnError().to
   errorEvent : -> @getOnError().event
 
