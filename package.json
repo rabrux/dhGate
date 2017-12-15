@@ -1,6 +1,6 @@
 {
   "name": "dhgate",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Dark Hole Gateway for PM2 and Socket.io",
   "main": "dist/dhGate.js",
   "scripts": {
