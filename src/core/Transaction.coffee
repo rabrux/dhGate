@@ -38,6 +38,11 @@ class Transaction
   setHistory : ( @_history = [] ) ->
   getHistory : -> @_history
 
+  genesis : -> 
+    if @_history.length > 0
+      return @_history[0]
+    undefined
+
   loadTasks : ( tasks = [] ) ->
     for t in tasks
       @_history.push new Task t
