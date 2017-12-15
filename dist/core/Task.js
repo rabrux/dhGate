@@ -51,14 +51,27 @@
       return this.params;
     };
 
-    Task.prototype.setOnSuccess = function(onSuccess) {
-      if (typeof onSuccess === 'string') {
-        return this._onSuccess = {
-          to: onSuccess,
-          event: this.getTo() + ':success'
-        };
+    Task.prototype.setResponseEvent = function(ev, sufix) {
+      var eve;
+      if (sufix == null) {
+        sufix = ':success';
       }
-      return this._onSuccess = onSuccess;
+      if (typeof ev === 'string') {
+        eve = {
+          to: ev
+        };
+        if (ev.split(':').length === 2) {
+          eve.event = 'task';
+        } else {
+          eve.event = this.getTo() + sufix;
+        }
+        return eve;
+      }
+      return ev;
+    };
+
+    Task.prototype.setOnSuccess = function(onSuccess) {
+      return this._onSuccess = this.setResponseEvent(onSuccess);
     };
 
     Task.prototype.getOnSuccess = function() {
@@ -74,13 +87,7 @@
     };
 
     Task.prototype.setOnError = function(onError) {
-      if (typeof onError === 'string') {
-        return this._onError = {
-          to: onError,
-          event: this.getTo() + ':error'
-        };
-      }
-      return this._onError = onError;
+      return this._onError = this.setResponseEvent(onSuccess, ':error');
     };
 
     Task.prototype.getOnError = function() {
