@@ -71,6 +71,14 @@
     };
 
     dhGate.prototype.processTransaction = function(trans) {
+      var params;
+      if (this.getClients()[trans.getTo()]) {
+        params = trans.getTask().params;
+        if (params.doc) {
+          return this.to(trans.getTo()).emit(trans.getEvent(), params.doc);
+        }
+        return this.to(trans.getTo()).emit(trans.getEvent(), params);
+      }
       if (!this.findRoomByType(trans.getTo())) {
         if (this._rooms.indexOf(trans.getTo()) === -1) {
           this._rooms.push(trans.getTo());
@@ -113,6 +121,10 @@
 
     dhGate.prototype.getRooms = function() {
       return this.sockets.adapter.rooms;
+    };
+
+    dhGate.prototype.getClients = function() {
+      return this.sockets.clients().connected;
     };
 
     dhGate.prototype.initRooms = function() {
