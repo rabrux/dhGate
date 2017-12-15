@@ -65,6 +65,14 @@
       return this._onSuccess;
     };
 
+    Task.prototype.successTo = function() {
+      return this.getOnSuccess().to;
+    };
+
+    Task.prototype.successEvent = function() {
+      return this.getOnSuccess().event;
+    };
+
     Task.prototype.setOnError = function(onError) {
       if (typeof onError === 'string') {
         return this._onError = {
@@ -77,6 +85,14 @@
 
     Task.prototype.getOnError = function() {
       return this._onError;
+    };
+
+    Task.prototype.errorTo = function() {
+      return this.getOnError().to;
+    };
+
+    Task.prototype.errorEvent = function() {
+      return this.getOnError().event;
     };
 
     return Task;
