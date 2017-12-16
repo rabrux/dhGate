@@ -1,11 +1,13 @@
 (function() {
-  var args, child, cmd, colors, configure, exec, execSync, flags, fs, packageFile, path, stream;
+  var args, child, cmd, colors, configure, exec, execSync, flags, fs, packageFile, path, shell, stream;
 
   args = require('args');
 
   path = require('path');
 
   fs = require('fs');
+
+  shell = require('shelljs');
 
   colors = require('colors');
 
@@ -20,9 +22,10 @@
   flags = args.parse(process.argv);
 
   configure = function() {
-    var child, gatePath;
-    if (!fs.existsSync(flags.src)) {
-      fs.mkdirSync(flags.src);
+    var assetsPotentialPaths, child, fullPath, gatePath, i, j, len, len1, p;
+    fullPath = path.join(flags.src, 'modules');
+    if (!fs.existsSync(fullPath)) {
+      shell.mkdir('-p', fullPath);
     }
     console.log('->'.green, 'application directory created at', flags.src.cyan);
     fs.writeFileSync('.dhgate.json', JSON.stringify({
@@ -32,16 +35,30 @@
     }, null, 2));
     console.log('->'.green, 'configuration file created as', '.dhgate.json'.cyan);
     gatePath = path.join(process.cwd(), flags.src, 'gate.coffee');
-    fs.createReadStream(path.join(process.cwd(), 'node_modules', 'dhgate', 'assets', 'gate.coffee')).pipe(fs.createWriteStream(gatePath));
+    assetsPotentialPaths = [path.join(process.cwd(), 'node_modules', 'dhgate', 'assets'), path.join(process.cwd(), 'assets')];
+    for (i = 0, len = assetsPotentialPaths.length; i < len; i++) {
+      p = assetsPotentialPaths[i];
+      if (fs.existsSync(p)) {
+        shell.cp(path.join(p, 'gate.coffee'), gatePath);
+        break;
+      }
+    }
     console.log('->'.green, 'gate index file created at', flags.src.cyan);
-    fs.createReadStream(path.join(process.cwd(), 'node_modules', 'dhgate', 'assets', 'Gulpfile.coffee')).pipe(fs.createWriteStream(path.join(process.cwd(), 'Gulpfile.coffee')));
+    for (j = 0, len1 = assetsPotentialPaths.length; j < len1; j++) {
+      p = assetsPotentialPaths[j];
+      if (fs.existsSync(p)) {
+        shell.cp(path.join(p, 'Gulpfile.coffee'), process.cwd());
+      }
+    }
     console.log('->'.green, 'gulpfile created, use "gulp" command to compile your app and "gulp dev" to watch and recompile');
     console.log('->'.green, 'installing node dev dependencies');
-    child = exec(cmd, ['install', '--save-dev', 'gulp', 'gulp-coffee', 'gulp-watch', 'coffeescript'], {
-      stdio: [0, 'pipe', 'pipe']
-    });
+    child = exec(cmd, ['install', '--save-dev', 'gulp', 'gulp-coffee', 'gulp-watch', 'coffeescript']);
     child.stderr.on('data', function(data) {
-      return console.log('err', data.toString());
+      var message;
+      message = data.toString();
+      if (!/npm|WARN|deprecated/g.test(message)) {
+        return console.error('->'.yellow, message);
+      }
     });
     return child.on('close', function(code) {
       return console.log('->'.green, 'dev dependencies installed');
