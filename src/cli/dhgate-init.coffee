@@ -1,6 +1,7 @@
 args   = require 'args'
 path   = require 'path'
 fs     = require 'fs'
+shell  = require 'shelljs'
 colors = require 'colors'
 
 exec     = require( 'child_process' ).spawn
@@ -17,42 +18,48 @@ flags = args.parse process.argv
 
 configure = ->
   # check src directory
-  if not fs.existsSync( flags.src )
-    fs.mkdirSync flags.src
+  fullPath = path.join flags.src, 'modules'
+  if not fs.existsSync( fullPath )
+    shell.mkdir '-p', fullPath
 
   console.log '->'.green, 'application directory created at', flags.src.cyan
 
   # write config file
-  fs.writeFileSync '.dhgate.json', JSON.stringify( { root : flags.src, dist: flags.dist, port : flags.port }, null, 2 )
+  fs.writeFileSync '.dhgate.json', JSON.stringify( { root : flags.src, dist: flags.dist, modules : fullPath, port : flags.port }, null, 2 )
 
   console.log '->'.green, 'configuration file created as', '.dhgate.json'.cyan
 
   # copy base gate to source dir
   gatePath = path.join process.cwd(), flags.src, 'gate.coffee'
 
-  fs
-    .createReadStream path.join process.cwd(), 'node_modules', 'dhgate', 'assets', 'gate.coffee'
-    .pipe fs.createWriteStream gatePath
+  # assets potential paths for dev and prod
+  assetsPotentialPaths = [
+    path.join process.cwd(), 'node_modules', 'dhgate', 'assets'
+    path.join process.cwd(), 'assets'
+  ]
+
+  # copy gate base code
+  for p in assetsPotentialPaths
+    if fs.existsSync( p )
+      shell.cp path.join( p, 'gate.coffee' ), gatePath
+      break
 
   console.log '->'.green, 'gate index file created at', flags.src.cyan
 
   # copy gulpfile
-  fs
-    .createReadStream path.join process.cwd(), 'node_modules', 'dhgate', 'assets', 'Gulpfile.coffee'
-    .pipe fs.createWriteStream path.join process.cwd(), 'Gulpfile.coffee'
+  for p in assetsPotentialPaths
+    if fs.existsSync( p )
+      shell.cp path.join( p, 'Gulpfile.coffee' ), process.cwd()
 
   console.log '->'.green, 'gulpfile created, use "gulp" command to compile your app and "gulp dev" to watch and recompile'
 
   # add dev packages to package.json
   console.log '->'.green, 'installing node dev dependencies'
-  child = exec cmd, [ 'install', '--save-dev', 'gulp', 'gulp-coffee', 'gulp-watch', 'coffeescript' ],
-    stdio : [
-      0
-      'pipe'
-      'pipe'
-    ]
+  child = exec cmd, [ 'install', '--save-dev', 'gulp', 'gulp-coffee', 'gulp-watch', 'coffeescript' ]
   child.stderr.on 'data', ( data ) ->
-    console.log 'err', data.toString()
+    message = data.toString()
+    if not /npm|WARN|deprecated/g.test( message )
+      console.error '->'.yellow, message
   child.on 'close', ( code ) ->
     console.log '->'.green, 'dev dependencies installed'
 
