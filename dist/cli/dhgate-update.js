@@ -1,5 +1,5 @@
 (function() {
-  var colors, config, ecoPath, ecosystem, entry, f, file, files, fs, fullpath, i, index, j, len, len1, modules, path, task, taskName, tasks;
+  var colors, config, ecoPath, ecosystem, entry, f, file, files, fs, fullpath, i, index, j, k, len, len1, len2, modules, p, path, task, taskClientPath, taskClientPotentialsPath, taskName, tasks;
 
   path = require('path');
 
@@ -22,29 +22,41 @@
 
   console.log('->'.green, 'looking for hand added modules');
 
-  modules = path.join(process.cwd(), config.root);
+  modules = path.join(process.cwd(), config.root, 'modules');
 
   files = fs.readdirSync(modules);
 
-  for (i = 0, len = files.length; i < len; i++) {
-    file = files[i];
+  taskClientPotentialsPath = [path.join('node_modules', 'dhgate', 'dist', 'core', 'TaskClient.js'), path.join('dist', 'core', 'TaskClient.js')];
+
+  taskClientPath = void 0;
+
+  for (i = 0, len = taskClientPotentialsPath.length; i < len; i++) {
+    p = taskClientPotentialsPath[i];
+    if (fs.existsSync(p)) {
+      taskClientPath = p;
+      break;
+    }
+  }
+
+  for (j = 0, len1 = files.length; j < len1; j++) {
+    file = files[j];
     fullpath = path.join(modules, file);
     f = fs.lstatSync(fullpath);
     if (f.isDirectory()) {
       console.log('->'.green, 'load module', file.cyan);
       tasks = fs.readdirSync(fullpath);
-      for (j = 0, len1 = tasks.length; j < len1; j++) {
-        task = tasks[j];
+      for (k = 0, len2 = tasks.length; k < len2; k++) {
+        task = tasks[k];
         taskName = file + ':' + path.parse(task).name;
         task = {
           name: taskName,
-          script: 'node_modules/dhgate/dist/core/TaskClient.js',
+          script: taskClientPath,
           merge_logs: true,
           autorestart: false,
           watch: true,
           env: {
             APP_NAME: taskName,
-            APP_ROOT: config.dist,
+            APP_ROOT: path.join(config.dist, 'modules'),
             APP_PORT: config.port,
             APP_TIMEOUT: 2
           }

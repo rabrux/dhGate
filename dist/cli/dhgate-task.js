@@ -1,5 +1,5 @@
 (function() {
-  var args, colors, config, ecoPath, ecosystem, entry, flags, fs, index, module, modulePath, parts, path, task, taskPath;
+  var args, assetsPotentialPaths, colors, config, ecoPath, ecosystem, entry, flags, fs, i, index, j, len, len1, module, modulePath, p, parts, path, shell, task, taskClientPath, taskClientPotentialsPath, taskPath;
 
   args = require('args');
 
@@ -8,6 +8,8 @@
   fs = require('fs');
 
   colors = require('colors');
+
+  shell = require('shelljs');
 
   try {
     config = require(path.join(process.cwd(), '.dhgate.json'));
@@ -36,7 +38,7 @@
 
   module = parts.shift();
 
-  modulePath = path.join(process.cwd(), config.root, module);
+  modulePath = path.join(process.cwd(), config.root, 'modules', module);
 
   if (!fs.existsSync(modulePath)) {
     fs.mkdirSync(modulePath);
@@ -47,7 +49,15 @@
 
   taskPath = path.join(modulePath, task + '.coffee');
 
-  fs.createReadStream(path.join(process.cwd(), 'node_modules', 'dhgate', 'assets', 'task.coffee')).pipe(fs.createWriteStream(taskPath));
+  assetsPotentialPaths = [path.join(process.cwd(), 'node_modules', 'dhgate', 'assets'), path.join(process.cwd(), 'assets')];
+
+  for (i = 0, len = assetsPotentialPaths.length; i < len; i++) {
+    p = assetsPotentialPaths[i];
+    if (fs.existsSync(p)) {
+      shell.cp(path.join(p, 'task.coffee'), taskPath);
+      break;
+    }
+  }
 
   console.log('->'.green, 'task', task.cyan, 'created for module', module.cyan);
 
@@ -61,15 +71,27 @@
     };
   }
 
+  taskClientPotentialsPath = [path.join('node_modules', 'dhgate', 'dist', 'core', 'TaskClient.js'), path.join('dist', 'core', 'TaskClient.js')];
+
+  taskClientPath = void 0;
+
+  for (j = 0, len1 = taskClientPotentialsPath.length; j < len1; j++) {
+    p = taskClientPotentialsPath[j];
+    if (fs.existsSync(p)) {
+      taskClientPath = p;
+      break;
+    }
+  }
+
   task = {
     name: flags.name,
-    script: 'node_modules/dhgate/dist/core/TaskClient.js',
+    script: taskClientPath,
     merge_logs: true,
     autorestart: false,
     watch: true,
     env: {
       APP_NAME: flags.name,
-      APP_ROOT: config.dist,
+      APP_ROOT: path.join(config.dist, 'modules'),
       APP_PORT: config.port,
       APP_TIMEOUT: 2
     }
@@ -88,6 +110,6 @@
 
   fs.writeFileSync(ecoPath, JSON.stringify(ecosystem, null, 2));
 
-  console.log('->'.green, 'task', flags.name, 'added to ecosystem pm2 config file');
+  console.log('->'.green, 'task', flags.name.cyan, 'added to ecosystem pm2 config file');
 
 }).call(this);
