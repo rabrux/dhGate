@@ -2,6 +2,7 @@ args   = require 'args'
 path   = require 'path'
 fs     = require 'fs'
 colors = require 'colors'
+shell  = require 'shelljs'
 
 # validate config file
 try
@@ -30,7 +31,7 @@ if flags.name.split( ':' ).length isnt 2
 # check module directory
 parts = flags.name.split ':'
 module = parts.shift()
-modulePath = path.join process.cwd(), config.root, module
+modulePath = path.join process.cwd(), config.root, 'modules', module
 if not fs.existsSync( modulePath )
   fs.mkdirSync modulePath
   console.log '->'.green, 'module', module.cyan, 'created.'
@@ -39,9 +40,17 @@ if not fs.existsSync( modulePath )
 task = parts.shift()
 taskPath = path.join modulePath, task + '.coffee'
 
-fs
-  .createReadStream path.join process.cwd(), 'node_modules', 'dhgate', 'assets', 'task.coffee'
-  .pipe fs.createWriteStream taskPath
+# assets potential paths for dev and prod
+assetsPotentialPaths = [
+  path.join process.cwd(), 'node_modules', 'dhgate', 'assets'
+  path.join process.cwd(), 'assets'
+]
+
+# copy gate base code
+for p in assetsPotentialPaths
+  if fs.existsSync( p )
+    shell.cp path.join( p, 'task.coffee' ), taskPath
+    break
 
 console.log '->'.green, 'task', task.cyan, 'created for module', module.cyan
 
@@ -54,16 +63,28 @@ catch
   ecosystem =
     apps : []
 
+# TaskClient script path
+taskClientPotentialsPath = [
+  path.join 'node_modules', 'dhgate', 'dist', 'core', 'TaskClient.js'
+  path.join 'dist', 'core', 'TaskClient.js'
+]
+
+taskClientPath = undefined
+for p in taskClientPotentialsPath
+  if fs.existsSync( p )
+    taskClientPath = p
+    break
+
 # create task entry
-task = 
+task =
   name   : flags.name
-  script : 'node_modules/dhgate/dist/core/TaskClient.js'
+  script : taskClientPath
   merge_logs  : true
   autorestart : false
   watch       : true
   env :
     APP_NAME    : flags.name
-    APP_ROOT    : config.dist
+    APP_ROOT    : path.join config.dist, 'modules'
     APP_PORT    : config.port
     APP_TIMEOUT : 2
 
@@ -77,4 +98,4 @@ else
   ecosystem.apps.splice index, 1, task
 
 fs.writeFileSync ecoPath, JSON.stringify( ecosystem, null, 2 )
-console.log '->'.green, 'task', flags.name, 'added to ecosystem pm2 config file'
+console.log '->'.green, 'task', flags.name.cyan, 'added to ecosystem pm2 config file'

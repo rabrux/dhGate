@@ -25,7 +25,7 @@ configure = ->
   console.log '->'.green, 'application directory created at', flags.src.cyan
 
   # write config file
-  fs.writeFileSync '.dhgate.json', JSON.stringify( { root : flags.src, dist: flags.dist, modules : fullPath, port : flags.port }, null, 2 )
+  fs.writeFileSync '.dhgate.json', JSON.stringify( { root : flags.src, dist: flags.dist, port : flags.port }, null, 2 )
 
   console.log '->'.green, 'configuration file created as', '.dhgate.json'.cyan
 
