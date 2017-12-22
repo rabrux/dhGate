@@ -45,12 +45,14 @@ describe( 'Collection class', function() {
       ( new Collection( Object, users ) ).findByKey( 'name', 'lorem' ).length.should.be.equal( 1 );
     } );
 
-    it( 'register() is false if not instance of @_type (object)', function() {
-      ( new Collection( Object, users ) ).register( 'lorem' ).should.be.equal( false );
+    it( 'register() throw an error if not instance of @_type (object)', function() {
+      var userCollection = new Collection( Object, users );
+      ( function() { userCollection.register( 'lorem' ) } ).should.throw();
     } );
 
     it( 'register() success', function() {
-      ( new Collection( Object, users ) ).register( { name : 'rabrux', pass : 'access' } ).should.be.equal( true );
+      var userCollection = new Collection( Object, users );
+      userCollection.register( { name : 'rabrux', pass : 'access' } ).should.be.a.number;
     } );
 
     it( 'remove() one element', function() {
