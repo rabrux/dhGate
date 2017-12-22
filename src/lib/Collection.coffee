@@ -9,6 +9,9 @@ class Collection
   set : ( @_collection ) ->
   get : -> @_collection
 
+  find : ( item ) ->
+    @_collection.filter ( el ) -> el is item
+
   findByKey : ( key, value ) ->
     if not value
       return @_collection.filter ( el ) -> el[ key ]
@@ -16,8 +19,12 @@ class Collection
     @_collection.filter ( el ) -> el[ key ] is value
 
   register : ( item ) ->
-    if item instanceof @_type is false
-      throw Error 'item is not instance of @_type'
+    if @_type instanceof Object is true
+      if item instanceof @_type is false
+        throw Error 'item is not instance of @_type'
+    else
+      if typeof item isnt @_type
+        throw Error 'item is not instance of @_type'
     @_collection.push item
 
   remove : ( items ) ->
