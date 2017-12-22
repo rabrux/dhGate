@@ -16,10 +16,9 @@ class Collection
     @_collection.filter ( el ) -> el[ key ] is value
 
   register : ( item ) ->
-    if item instanceof @_type
-      @_collection.push item
-      return true
-    false
+    if item instanceof @_type is false
+      throw Error 'item is not instance of @_type'
+    @_collection.push item
 
   remove : ( items ) ->
     if items instanceof Array
