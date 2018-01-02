@@ -13,10 +13,19 @@ class Collection
     @_collection.filter ( el ) -> el is item
 
   findByKey : ( key, value ) ->
+    keys = key.split '.'
     if not value
-      return @_collection.filter ( el ) -> el[ key ]
+      return @_collection.filter ( el ) ->
+        e = el
+        for k in keys
+          e = e[ k ]
+        e
 
-    @_collection.filter ( el ) -> el[ key ] is value
+    @_collection.filter ( el ) ->
+      e = el
+      for k in keys
+        e = e[ k ]
+      e is value
 
   register : ( item ) ->
     if @_type instanceof Object is true
