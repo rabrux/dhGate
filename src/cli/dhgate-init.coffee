@@ -30,7 +30,8 @@ configure = ->
   console.log '->'.green, 'configuration file created as', '.dhgate.json'.cyan
 
   # copy base gate to source dir
-  gatePath = path.join process.cwd(), flags.src, 'gate.coffee'
+  # gatePath = path.join process.cwd(), flags.src, 'gate.coffee'
+  srcPath = path.join process.cwd(), flags.src
 
   # assets potential paths for dev and prod
   assetsPotentialPaths = [
@@ -41,10 +42,17 @@ configure = ->
   # copy gate base code
   for p in assetsPotentialPaths
     if fs.existsSync( p )
-      shell.cp path.join( p, 'gate.coffee' ), gatePath
+      shell.cp path.join( p, 'gate.coffee' ), srcPath
       break
 
   console.log '->'.green, 'gate index file created at', flags.src.cyan
+
+  # copy client to base code
+  for p in assetsPotentialPaths
+    if fs.existsSync( p )
+      shell.cp path.join( p, 'client.coffee' ), srcPath
+
+  console.log '->'.green, 'client index file created at', flags.src.cyan
 
   # copy gulpfile
   for p in assetsPotentialPaths

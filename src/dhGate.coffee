@@ -1,111 +1,87 @@
 io    = require 'socket.io'
 execa = require 'execa'
 
+# core
 Transaction = require './core/Transaction'
 Task        = require './core/Task'
-FSHelper    = require './lib/FSHelper'
+TaskClient  = require './core/TaskClient'
+
+# libs
+FSHelper   = require './lib/FSHelper'
+Collection = require './lib/Collection'
 
 class dhGate extends io
 
   constructor : ( srv, opts ) ->
+
+    if not srv
+      throw Error 'missing params ( srv )'
+
     super srv, opts
     # save this to it
     it = @
 
-    # init
-    @checkRootPath opts?.root
-    @initTransactions()
-    @initRooms()
+    # init room and transaction collections
+    @_rooms        = new Collection 'string'
+    @_transactions = new Collection Transaction
 
-    # base protocol
     @on 'connect', ( socket ) ->
-
       socket.on 'register', ( room ) ->
         socket.join room
-        console.log 'room created for task', room
-        # remove room to reload if timeout
-        it._rooms.splice it._rooms.indexOf( room ), 1
-        # emit transactions
-        transactions = it.findTransactionByType room
-        for t in transactions
-          it.to( room ).emit t.getEvent(), t
-        it.removeTransactions transactions
+        transactions = it._transactions.findByKey '_task.to', room
+        for transaction in transactions
+          it.to( room ).emit 'task', transaction
+        # remove sent transactions
+        it._transactions.remove transactions
+        # remove room
+        it._rooms.remove it._rooms.find room
 
-      # task trigger listener for clients
       socket.on 'task', ( task ) ->
-        trans = new Transaction new Task task, socket.id
+        transaction = new Transaction new Task task, socket.id
+        it.process transaction
 
-        it.processTransaction trans
+      socket.on 'forward', ( transaction ) ->
+        transaction = new Transaction transaction
+        it.process transaction
 
-      socket.on 'forward', ( trans ) ->
-        trans = new Transaction trans
+      socket.on 'forward', ( transaction ) ->
 
-        it.processTransaction trans
+      socket.on 'shutdown', ->
 
-  # check if services path is a directory
-  checkRootPath : ( _path ) ->
-    if not _path
-      throw 'you must to set <services> directory'
-
-    fsh = new FSHelper _path
-    if not fsh.isDirectory()
-      throw '<services> path is not a directory'
-
-    @_root = _path
-
-  # transaction functions
-  getTransactions : -> @_transactions
-
-  findTransactionByType : ( type ) ->
-    @_transactions.filter ( el ) -> el.getTo() is type
-
-  processTransaction : ( trans ) ->
-    # is client
-    if @getClients()[ trans.getTo() ]
-      params = trans.getTask().params
-      return @to( trans.getTo() ).emit trans.getEvent(), params.doc if params.doc
-      return @to( trans.getTo() ).emit trans.getEvent(), params
-      
-    # load task
-    if not @findRoomByType( trans.getTo() )
-      # prevent load many
-      if @_rooms.indexOf( trans.getTo() ) is -1
-        # save room to prevent many
-        @_rooms.push trans.getTo()
-        @registerTransaction trans
-        execa 'pm2', [ 'start', 'ecosystem.json', '--only', trans.getTo() ]
-    # emit task to be process
-    else
-      @to( trans.getTo() ).emit trans.getEvent(), trans
-
-  registerTransaction : ( trans ) ->
-    console.log 'register transaction', trans.getId(), trans.getTo()
-    isStacked = @getTransactions().filter ( el ) -> el.getId() is trans.getId()
-    if isStacked.length is 0
-      @_transactions.push trans
-
-  removeTransactions : ( trans ) ->
-    if trans instanceof Array
-      for t in trans
-        @removeTransactions t
-    if trans instanceof Transaction
-      index = @_transactions.indexOf trans
-      @_transactions.splice index, 1
-
-  # room functions
-  findRoomByType : ( type ) ->
-    @getRooms()[ type ]
-
-  getRooms : -> @sockets.adapter.rooms
+  getRooms   : -> @sockets.adapter.rooms
   getClients : -> @sockets.clients().connected
 
-  # init functions for transactions and rooms
-  initRooms        : -> @_rooms = []
-  initTransactions : -> @_transactions = []
+  isClient : ( id ) -> @getClients()[ id ]
 
-  getRoot : -> @_root
+  register : ( transaction ) ->
+    isStacked = @_transactions.findByKey( '_id', transaction.getId() )
+    if isStacked.length is 0
+      @_transactions.register transaction
+
+  process : ( transaction ) ->
+    if @isClient( transaction.getTo() )
+      params = transaction.getTask().params
+      to     = transaction.getTo()
+      event  = transaction.getEvent()
+      params = params.doc if params.doc
+      return @to( to ).emit event, params
+
+    room = transaction.getTo()
+    if not @getRooms()[ room ]
+      isRoomStacked = @_rooms.find room
+      # prevent load many instances
+      if isRoomStacked.length is 0
+        @_rooms.register room
+        @register transaction
+        #execa 'pm2', [ 'start', 'ecosystem.json', '--only', transaction.getTo() ]
+        console.log 'register room', room, @_rooms, @_transactions
+    else
+      @to( transaction.getTo() ).emit 'task', transaction
 
 module.exports =
   dhGate      : dhGate
   Task        : Task
+  TaskClient  : TaskClient
   Transaction : Transaction
+  FSHelper    : FSHelper
+  Collection  : Collection
