@@ -12,9 +12,12 @@ catch
 # ecosystem path
 ecoPath = path.join process.cwd(), 'ecosystem.json'
 
-# init empty ecosystem
-ecosystem =
-  apps : []
+try
+  ecosystem = require ecoPath
+catch
+  # init empty ecosystem
+  ecosystem =
+    apps : []
 
 # recursive load modules
 console.log '->'.green, 'looking for hand added modules'
@@ -51,7 +54,9 @@ for file in files
         console.log "\t->".green, 'task', taskName.cyan, 'added to ecosystem pm2 config file'
       else
         index = ecosystem.apps.indexOf entry
+        task.env.APP_TIMEOUT = ecosystem.apps[ index ].env.APP_TIMEOUT
         ecosystem.apps.splice index, 1, task
+        console.log "\t->".green, 'task', taskName.cyan, 'updated on ecosystem pm2 config file'
 
 # write ecosystem file
 fs.writeFileSync ecoPath, JSON.stringify( ecosystem, null, 2 )
