@@ -22,18 +22,6 @@ console.log '->'.green, 'looking for hand added modules'
 modules = path.join process.cwd(), config.root, 'modules'
 files   = fs.readdirSync modules
 
-# TaskClient script path
-taskClientPotentialsPath = [
-  path.join 'node_modules', 'dhgate', 'dist', 'core', 'TaskClient.js'
-  path.join 'dist', 'core', 'TaskClient.js'
-]
-
-taskClientPath = undefined
-for p in taskClientPotentialsPath
-  if fs.existsSync( p )
-    taskClientPath = p
-    break
-
 for file in files
   fullpath = path.join modules, file
   f = fs.lstatSync fullpath
@@ -45,7 +33,7 @@ for file in files
       # create task entry
       task =
         name   : taskName
-        script : taskClientPath
+        script : path.join config.dist, 'client.js'
         merge_logs  : true
         autorestart : false
         watch       : true
