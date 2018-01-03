@@ -63,22 +63,10 @@ catch
   ecosystem =
     apps : []
 
-# TaskClient script path
-taskClientPotentialsPath = [
-  path.join 'node_modules', 'dhgate', 'dist', 'core', 'TaskClient.js'
-  path.join 'dist', 'core', 'TaskClient.js'
-]
-
-taskClientPath = undefined
-for p in taskClientPotentialsPath
-  if fs.existsSync( p )
-    taskClientPath = p
-    break
-
 # create task entry
 task =
   name   : flags.name
-  script : taskClientPath
+  script : path.join config.dist, 'client.js'
   merge_logs  : true
   autorestart : false
   watch       : true
