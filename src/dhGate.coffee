@@ -73,8 +73,8 @@ class dhGate extends io
       if isRoomStacked.length is 0
         @_rooms.register room
         @register transaction
-        #execa 'pm2', [ 'start', 'ecosystem.json', '--only', transaction.getTo() ]
-        console.log 'register room', room, @_rooms, @_transactions
+        # exec agent
+        execa 'pm2', [ 'start', 'ecosystem.json', '--only', transaction.getTo() ]
     else
       @to( transaction.getTo() ).emit 'task', transaction
 

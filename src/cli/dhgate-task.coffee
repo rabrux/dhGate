@@ -13,7 +13,8 @@ catch
 
 args
   .option 'name', 'Task name in format <module>:<task>', undefined
-  .example 'dhgate task --name auth:login', 'creates task file on root app directory, if root directory is "app" the result wound be a file on path "app/auth/login.coffee"'
+  .option 'timeout', 'Task timeout', 10
+  .example 'dhgate task --name auth:login --timeout 2', 'creates task file on root app directory with timeout equals to 2 minutes, if root directory is "app" the result wound be a file on path "app/auth/login.coffee"'
 
 flags = args.parse process.argv
 
@@ -74,7 +75,7 @@ task =
     APP_NAME    : flags.name
     APP_ROOT    : path.join config.dist, 'modules'
     APP_PORT    : config.port
-    APP_TIMEOUT : 2
+    APP_TIMEOUT : flags.timeout
 
 # entry exists
 entry = ecosystem.apps.filter( ( el ) -> el.name is flags.name ).shift()
