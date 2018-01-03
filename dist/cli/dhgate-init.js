@@ -22,7 +22,7 @@
   flags = args.parse(process.argv);
 
   configure = function() {
-    var assetsPotentialPaths, child, fullPath, gatePath, i, j, len, len1, p;
+    var assetsPotentialPaths, child, fullPath, i, j, k, len, len1, len2, p, srcPath;
     fullPath = path.join(flags.src, 'modules');
     if (!fs.existsSync(fullPath)) {
       shell.mkdir('-p', fullPath);
@@ -34,18 +34,25 @@
       port: flags.port
     }, null, 2));
     console.log('->'.green, 'configuration file created as', '.dhgate.json'.cyan);
-    gatePath = path.join(process.cwd(), flags.src, 'gate.coffee');
+    srcPath = path.join(process.cwd(), flags.src);
     assetsPotentialPaths = [path.join(process.cwd(), 'node_modules', 'dhgate', 'assets'), path.join(process.cwd(), 'assets')];
     for (i = 0, len = assetsPotentialPaths.length; i < len; i++) {
       p = assetsPotentialPaths[i];
       if (fs.existsSync(p)) {
-        shell.cp(path.join(p, 'gate.coffee'), gatePath);
+        shell.cp(path.join(p, 'gate.coffee'), srcPath);
         break;
       }
     }
     console.log('->'.green, 'gate index file created at', flags.src.cyan);
     for (j = 0, len1 = assetsPotentialPaths.length; j < len1; j++) {
       p = assetsPotentialPaths[j];
+      if (fs.existsSync(p)) {
+        shell.cp(path.join(p, 'client.coffee'), srcPath);
+      }
+    }
+    console.log('->'.green, 'client index file created at', flags.src.cyan);
+    for (k = 0, len2 = assetsPotentialPaths.length; k < len2; k++) {
+      p = assetsPotentialPaths[k];
       if (fs.existsSync(p)) {
         shell.cp(path.join(p, 'Gulpfile.coffee'), process.cwd());
       }

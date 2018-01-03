@@ -1,5 +1,5 @@
 (function() {
-  var FSHelper, Task, Transaction, dhGate, execa, io,
+  var Collection, FSHelper, Task, TaskClient, Transaction, dhGate, execa, io,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
@@ -11,113 +11,48 @@
 
   Task = require('./core/Task');
 
+  TaskClient = require('./core/TaskClient');
+
   FSHelper = require('./lib/FSHelper');
+
+  Collection = require('./lib/Collection');
 
   dhGate = (function(superClass) {
     extend(dhGate, superClass);
 
     function dhGate(srv, opts) {
       var it;
+      if (!srv) {
+        throw Error('missing params ( srv )');
+      }
       dhGate.__super__.constructor.call(this, srv, opts);
       it = this;
-      this.checkRootPath(opts != null ? opts.root : void 0);
-      this.initTransactions();
-      this.initRooms();
+      this._rooms = new Collection('string');
+      this._transactions = new Collection(Transaction);
       this.on('connect', function(socket) {
         socket.on('register', function(room) {
-          var i, len, t, transactions;
+          var i, len, transaction, transactions;
           socket.join(room);
-          console.log('room created for task', room);
-          it._rooms.splice(it._rooms.indexOf(room), 1);
-          transactions = it.findTransactionByType(room);
+          transactions = it._transactions.findByKey('_task.to', room);
           for (i = 0, len = transactions.length; i < len; i++) {
-            t = transactions[i];
-            it.to(room).emit(t.getEvent(), t);
+            transaction = transactions[i];
+            it.to(room).emit('task', transaction);
           }
-          return it.removeTransactions(transactions);
+          it._transactions.remove(transactions);
+          return it._rooms.remove(it._rooms.find(room));
         });
         socket.on('task', function(task) {
-          var trans;
-          trans = new Transaction(new Task(task, socket.id));
-          return it.processTransaction(trans);
+          var transaction;
+          transaction = new Transaction(new Task(task, socket.id));
+          return it.process(transaction);
         });
-        return socket.on('forward', function(trans) {
-          trans = new Transaction(trans);
-          return it.processTransaction(trans);
+        socket.on('forward', function(transaction) {
+          transaction = new Transaction(transaction);
+          return it.process(transaction);
         });
+        return socket.on('shutdown', function() {});
       });
     }
-
-    dhGate.prototype.checkRootPath = function(_path) {
-      var fsh;
-      if (!_path) {
-        throw 'you must to set <services> directory';
-      }
-      fsh = new FSHelper(_path);
-      if (!fsh.isDirectory()) {
-        throw '<services> path is not a directory';
-      }
-      return this._root = _path;
-    };
-
-    dhGate.prototype.getTransactions = function() {
-      return this._transactions;
-    };
-
-    dhGate.prototype.findTransactionByType = function(type) {
-      return this._transactions.filter(function(el) {
-        return el.getTo() === type;
-      });
-    };
-
-    dhGate.prototype.processTransaction = function(trans) {
-      var params;
-      if (this.getClients()[trans.getTo()]) {
-        params = trans.getTask().params;
-        if (params.doc) {
-          return this.to(trans.getTo()).emit(trans.getEvent(), params.doc);
-        }
-        return this.to(trans.getTo()).emit(trans.getEvent(), params);
-      }
-      if (!this.findRoomByType(trans.getTo())) {
-        if (this._rooms.indexOf(trans.getTo()) === -1) {
-          this._rooms.push(trans.getTo());
-          this.registerTransaction(trans);
-          return execa('pm2', ['start', 'ecosystem.json', '--only', trans.getTo()]);
-        }
-      } else {
-        return this.to(trans.getTo()).emit(trans.getEvent(), trans);
-      }
-    };
-
-    dhGate.prototype.registerTransaction = function(trans) {
-      var isStacked;
-      console.log('register transaction', trans.getId(), trans.getTo());
-      isStacked = this.getTransactions().filter(function(el) {
-        return el.getId() === trans.getId();
-      });
-      if (isStacked.length === 0) {
-        return this._transactions.push(trans);
-      }
-    };
-
-    dhGate.prototype.removeTransactions = function(trans) {
-      var i, index, len, t;
-      if (trans instanceof Array) {
-        for (i = 0, len = trans.length; i < len; i++) {
-          t = trans[i];
-          this.removeTransactions(t);
-        }
-      }
-      if (trans instanceof Transaction) {
-        index = this._transactions.indexOf(trans);
-        return this._transactions.splice(index, 1);
-      }
-    };
-
-    dhGate.prototype.findRoomByType = function(type) {
-      return this.getRooms()[type];
-    };
 
     dhGate.prototype.getRooms = function() {
       return this.sockets.adapter.rooms;
@@ -127,16 +62,40 @@
       return this.sockets.clients().connected;
     };
 
-    dhGate.prototype.initRooms = function() {
-      return this._rooms = [];
+    dhGate.prototype.isClient = function(id) {
+      return this.getClients()[id];
     };
 
-    dhGate.prototype.initTransactions = function() {
-      return this._transactions = [];
+    dhGate.prototype.register = function(transaction) {
+      var isStacked;
+      isStacked = this._transactions.findByKey('_id', transaction.getId());
+      if (isStacked.length === 0) {
+        return this._transactions.register(transaction);
+      }
     };
 
-    dhGate.prototype.getRoot = function() {
-      return this._root;
+    dhGate.prototype.process = function(transaction) {
+      var event, isRoomStacked, params, room, to;
+      if (this.isClient(transaction.getTo())) {
+        params = transaction.getTask().params;
+        to = transaction.getTo();
+        event = transaction.getEvent();
+        if (params.doc) {
+          params = params.doc;
+        }
+        return this.to(to).emit(event, params);
+      }
+      room = transaction.getTo();
+      if (!this.getRooms()[room]) {
+        isRoomStacked = this._rooms.find(room);
+        if (isRoomStacked.length === 0) {
+          this._rooms.register(room);
+          this.register(transaction);
+          return execa('pm2', ['start', 'ecosystem.json', '--only', transaction.getTo()]);
+        }
+      } else {
+        return this.to(transaction.getTo()).emit('task', transaction);
+      }
     };
 
     return dhGate;
@@ -146,7 +105,10 @@
   module.exports = {
     dhGate: dhGate,
     Task: Task,
-    Transaction: Transaction
+    TaskClient: TaskClient,
+    Transaction: Transaction,
+    FSHelper: FSHelper,
+    Collection: Collection
   };
 
 }).call(this);

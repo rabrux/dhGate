@@ -1,5 +1,5 @@
 (function() {
-  var colors, config, ecoPath, ecosystem, entry, f, file, files, fs, fullpath, i, index, j, k, len, len1, len2, modules, p, path, task, taskClientPath, taskClientPotentialsPath, taskName, tasks;
+  var colors, config, ecoPath, ecosystem, entry, f, file, files, fs, fullpath, i, index, j, len, len1, modules, path, task, taskName, tasks;
 
   path = require('path');
 
@@ -16,9 +16,13 @@
 
   ecoPath = path.join(process.cwd(), 'ecosystem.json');
 
-  ecosystem = {
-    apps: []
-  };
+  try {
+    ecosystem = require(ecoPath);
+  } catch (error) {
+    ecosystem = {
+      apps: []
+    };
+  }
 
   console.log('->'.green, 'looking for hand added modules');
 
@@ -26,31 +30,19 @@
 
   files = fs.readdirSync(modules);
 
-  taskClientPotentialsPath = [path.join('node_modules', 'dhgate', 'dist', 'core', 'TaskClient.js'), path.join('dist', 'core', 'TaskClient.js')];
-
-  taskClientPath = void 0;
-
-  for (i = 0, len = taskClientPotentialsPath.length; i < len; i++) {
-    p = taskClientPotentialsPath[i];
-    if (fs.existsSync(p)) {
-      taskClientPath = p;
-      break;
-    }
-  }
-
-  for (j = 0, len1 = files.length; j < len1; j++) {
-    file = files[j];
+  for (i = 0, len = files.length; i < len; i++) {
+    file = files[i];
     fullpath = path.join(modules, file);
     f = fs.lstatSync(fullpath);
     if (f.isDirectory()) {
       console.log('->'.green, 'load module', file.cyan);
       tasks = fs.readdirSync(fullpath);
-      for (k = 0, len2 = tasks.length; k < len2; k++) {
-        task = tasks[k];
+      for (j = 0, len1 = tasks.length; j < len1; j++) {
+        task = tasks[j];
         taskName = file + ':' + path.parse(task).name;
         task = {
           name: taskName,
-          script: taskClientPath,
+          script: path.join(config.dist, 'client.js'),
           merge_logs: true,
           autorestart: false,
           watch: true,
@@ -69,7 +61,9 @@
           console.log("\t->".green, 'task', taskName.cyan, 'added to ecosystem pm2 config file');
         } else {
           index = ecosystem.apps.indexOf(entry);
+          task.env.APP_TIMEOUT = ecosystem.apps[index].env.APP_TIMEOUT;
           ecosystem.apps.splice(index, 1, task);
+          console.log("\t->".green, 'task', taskName.cyan, 'updated on ecosystem pm2 config file');
         }
       }
     }

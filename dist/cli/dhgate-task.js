@@ -1,5 +1,5 @@
 (function() {
-  var args, assetsPotentialPaths, colors, config, ecoPath, ecosystem, entry, flags, fs, i, index, j, len, len1, module, modulePath, p, parts, path, shell, task, taskClientPath, taskClientPotentialsPath, taskPath;
+  var args, assetsPotentialPaths, colors, config, ecoPath, ecosystem, entry, flags, fs, i, index, len, module, modulePath, p, parts, path, shell, task, taskPath;
 
   args = require('args');
 
@@ -18,7 +18,7 @@
     process.exit(2);
   }
 
-  args.option('name', 'Task name in format <module>:<task>', void 0).example('dhgate task --name auth:login', 'creates task file on root app directory, if root directory is "app" the result wound be a file on path "app/auth/login.coffee"');
+  args.option('name', 'Task name in format <module>:<task>', void 0).option('timeout', 'Task timeout', 10).example('dhgate task --name auth:login --timeout 2', 'creates task file on root app directory with timeout equals to 2 minutes, if root directory is "app" the result wound be a file on path "app/auth/login.coffee"');
 
   flags = args.parse(process.argv);
 
@@ -71,21 +71,9 @@
     };
   }
 
-  taskClientPotentialsPath = [path.join('node_modules', 'dhgate', 'dist', 'core', 'TaskClient.js'), path.join('dist', 'core', 'TaskClient.js')];
-
-  taskClientPath = void 0;
-
-  for (j = 0, len1 = taskClientPotentialsPath.length; j < len1; j++) {
-    p = taskClientPotentialsPath[j];
-    if (fs.existsSync(p)) {
-      taskClientPath = p;
-      break;
-    }
-  }
-
   task = {
     name: flags.name,
-    script: taskClientPath,
+    script: path.join(config.dist, 'client.js'),
     merge_logs: true,
     autorestart: false,
     watch: true,
@@ -93,7 +81,7 @@
       APP_NAME: flags.name,
       APP_ROOT: path.join(config.dist, 'modules'),
       APP_PORT: config.port,
-      APP_TIMEOUT: 2
+      APP_TIMEOUT: flags.timeout
     }
   };
 
