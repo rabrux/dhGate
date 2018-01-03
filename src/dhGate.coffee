@@ -44,8 +44,6 @@ class dhGate extends io
         transaction = new Transaction transaction
         it.process transaction
 
-      socket.on 'forward', ( transaction ) ->
-
       socket.on 'shutdown', ->
 
   getRooms   : -> @sockets.adapter.rooms
