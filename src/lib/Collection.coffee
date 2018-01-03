@@ -40,7 +40,7 @@ class Collection
     if items instanceof Array
       for i in items
         @remove i
-    if items instanceof @_type
+    else
       index = @_collection.indexOf items
       @_collection.splice index, 1
     @
