@@ -41,7 +41,7 @@ class Transaction
   genesis : -> 
     if @_history.length > 0
       return @_history[0]
-    undefined
+    @getTask()
 
   loadTasks : ( tasks = [] ) ->
     for t in tasks
