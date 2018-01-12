@@ -6,7 +6,7 @@ watch  = require 'gulp-watch'
 gulp.task 'build', ->
   gulp
     .src [ 'src/*.coffee', 'src/**/*.coffee' ]
-    .pipe coffee().on( 'error', ( err ) ->
+    .pipe coffee( bare : true ).on( 'error', ( err ) ->
       console.log err.message
       @emit 'end'
     )

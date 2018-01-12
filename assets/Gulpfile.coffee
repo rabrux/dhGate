@@ -13,7 +13,7 @@ source = [
 gulp.task 'build', ->
   gulp
     .src source
-    .pipe coffee().on( 'error', ( err ) ->
+    .pipe coffee( bare : true ).on( 'error', ( err ) ->
       console.log err.message
       @emit 'end'
     )

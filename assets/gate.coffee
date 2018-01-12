@@ -5,8 +5,7 @@ path       = require 'path'
 config = require '../.dhgate.json'
 
 # init gate
-gate = new dhGate config.port,
-  root : path.join __dirname
+gate = new dhGate config.port
 
 gate.on 'connect', ( socket ) ->
   console.log 'client connected', socket.id
