@@ -2,12 +2,10 @@ io    = require 'socket.io'
 execa = require 'execa'
 
 # core
-Transaction = require './core/Transaction'
-Task        = require './core/Task'
-TaskClient  = require './core/TaskClient'
+Transaction = require './Transaction'
+Task        = require './Task'
 
 # libs
-FSHelper   = require './lib/FSHelper'
 Collection = require './lib/Collection'
 
 class dhGate extends io
@@ -76,10 +74,4 @@ class dhGate extends io
     else
       @to( transaction.getTo() ).emit 'task', transaction
 
-module.exports =
-  dhGate      : dhGate
-  Task        : Task
-  TaskClient  : TaskClient
-  Transaction : Transaction
-  FSHelper    : FSHelper
-  Collection  : Collection
+module.exports = dhGate
