@@ -13,10 +13,7 @@
     "dhgate-task": "bin/dhgate-task",
     "dhgate-update": "bin/dhgate-update"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/rabrux/dhGate.git"
-  },
+  "repository": "git+https://github.com/rabrux/dhGate.git",
   "keywords": [
     "pm2",
     "socket.io",
