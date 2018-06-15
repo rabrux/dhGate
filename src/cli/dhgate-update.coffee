@@ -10,7 +10,7 @@ catch
   process.exit 2
 
 # ecosystem path
-ecoPath = path.join process.cwd(), 'ecosystem.json'
+ecoPath = path.join process.cwd(), 'tasks.json'
 
 try
   ecosystem = require ecoPath

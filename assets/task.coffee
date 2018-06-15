@@ -3,3 +3,4 @@
 module.exports = ( socket, transaction ) ->
 
   # code goes here
+

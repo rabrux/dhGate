@@ -9,3 +9,4 @@ gate = new dhGate config.port
 
 gate.on 'connect', ( socket ) ->
   console.log 'client connected', socket.id
+

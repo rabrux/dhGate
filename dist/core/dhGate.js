@@ -10,7 +10,7 @@ Transaction = require('./Transaction');
 
 Task = require('./Task');
 
-Collection = require('./lib/Collection');
+Collection = require('../lib/Collection');
 
 dhGate = (function(superClass) {
   extend(dhGate, superClass);
@@ -86,7 +86,7 @@ dhGate = (function(superClass) {
       if (isRoomStacked.length === 0) {
         this._rooms.register(room);
         this.register(transaction);
-        return execa('pm2', ['start', 'ecosystem.json', '--only', transaction.getTo()]);
+        return execa('pm2', ['start', 'tasks.json', '--only', transaction.getTo()]);
       }
     } else {
       return this.to(transaction.getTo()).emit('task', transaction);

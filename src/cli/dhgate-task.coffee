@@ -56,7 +56,7 @@ for p in assetsPotentialPaths
 console.log '->'.green, 'task', task.cyan, 'created for module', module.cyan
 
 # add function to ecosystem pm2 config file
-ecoPath = path.join process.cwd(), 'ecosystem.json'
+ecoPath = path.join process.cwd(), 'tasks.json'
 # if not fs.existsSync( ecoPath )
 try
   ecosystem = require ecoPath

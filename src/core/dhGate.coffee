@@ -6,7 +6,7 @@ Transaction = require './Transaction'
 Task        = require './Task'
 
 # libs
-Collection = require './lib/Collection'
+Collection = require '../lib/Collection'
 
 class dhGate extends io
 
@@ -70,7 +70,7 @@ class dhGate extends io
         @_rooms.register room
         @register transaction
         # exec agent
-        execa 'pm2', [ 'start', 'ecosystem.json', '--only', transaction.getTo() ]
+        execa 'pm2', [ 'start', 'tasks.json', '--only', transaction.getTo() ]
     else
       @to( transaction.getTo() ).emit 'task', transaction
 

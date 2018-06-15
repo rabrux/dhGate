@@ -60,7 +60,7 @@ for (i = 0, len = assetsPotentialPaths.length; i < len; i++) {
 
 console.log('->'.green, 'task', task.cyan, 'created for module', module.cyan);
 
-ecoPath = path.join(process.cwd(), 'ecosystem.json');
+ecoPath = path.join(process.cwd(), 'tasks.json');
 
 try {
   ecosystem = require(ecoPath);
