@@ -1,97 +1,94 @@
-(function() {
-  var Task, Transaction, rs;
+var Task, Transaction, rs;
 
-  rs = require('randomstring');
+rs = require('randomstring');
 
-  Task = require('./Task');
+Task = require('./Task');
 
-  Transaction = (function() {
-    function Transaction(transaction) {
-      if (transaction instanceof Task) {
-        this.setId();
-        this.setTask(transaction);
-        this.setHistory();
-      } else {
-        this.setId(transaction._id);
-        this.setTask(new Task(transaction._task));
-        this.setHistory();
-        this.loadTasks(transaction._history);
-      }
+Transaction = (function() {
+  function Transaction(transaction) {
+    if (transaction instanceof Task) {
+      this.setId();
+      this.setTask(transaction);
+      this.setHistory();
+    } else {
+      this.setId(transaction._id);
+      this.setTask(new Task(transaction._task));
+      this.setHistory();
+      this.loadTasks(transaction._history);
     }
+  }
 
-    Transaction.prototype.pushTask = function(task) {
-      this._history.push(this.getTask());
-      if (!task._onSuccess) {
-        task._onSuccess = this.getTask().getOnSuccess();
-      }
-      if (!task._onError) {
-        task._onError = this.getTask().getOnError();
-      }
-      return this.setTask(task);
-    };
+  Transaction.prototype.pushTask = function(task) {
+    this._history.push(this.getTask());
+    if (!task._onSuccess) {
+      task._onSuccess = this.getTask().getOnSuccess();
+    }
+    if (!task._onError) {
+      task._onError = this.getTask().getOnError();
+    }
+    return this.setTask(task);
+  };
 
-    Transaction.prototype.generateId = function() {
-      return rs.generate({
-        length: 15
-      });
-    };
+  Transaction.prototype.generateId = function() {
+    return rs.generate({
+      length: 15
+    });
+  };
 
-    Transaction.prototype.getEvent = function() {
-      return this.getTask().getEvent();
-    };
+  Transaction.prototype.getEvent = function() {
+    return this.getTask().getEvent();
+  };
 
-    Transaction.prototype.getTo = function() {
-      return this.getTask().getTo();
-    };
+  Transaction.prototype.getTo = function() {
+    return this.getTask().getTo();
+  };
 
-    Transaction.prototype.setId = function(_id) {
-      this._id = _id != null ? _id : this.generateId();
-    };
+  Transaction.prototype.setId = function(_id) {
+    this._id = _id != null ? _id : this.generateId();
+  };
 
-    Transaction.prototype.getId = function() {
-      return this._id;
-    };
+  Transaction.prototype.getId = function() {
+    return this._id;
+  };
 
-    Transaction.prototype.setTask = function(_task) {
-      this._task = _task;
-    };
+  Transaction.prototype.setTask = function(_task) {
+    this._task = _task;
+  };
 
-    Transaction.prototype.getTask = function() {
-      return this._task;
-    };
+  Transaction.prototype.getTask = function() {
+    return this._task;
+  };
 
-    Transaction.prototype.setHistory = function(_history) {
-      this._history = _history != null ? _history : [];
-    };
+  Transaction.prototype.setHistory = function(_history) {
+    this._history = _history != null ? _history : [];
+  };
 
-    Transaction.prototype.getHistory = function() {
-      return this._history;
-    };
+  Transaction.prototype.getHistory = function() {
+    return this._history;
+  };
 
-    Transaction.prototype.genesis = function() {
-      if (this._history.length > 0) {
-        return this._history[0];
-      }
-      return void 0;
-    };
+  Transaction.prototype.genesis = function() {
+    if (this._history.length > 0) {
+      return this._history[0];
+    }
+    return this.getTask();
+  };
 
-    Transaction.prototype.loadTasks = function(tasks) {
-      var i, len, results, t;
-      if (tasks == null) {
-        tasks = [];
-      }
-      results = [];
-      for (i = 0, len = tasks.length; i < len; i++) {
-        t = tasks[i];
-        results.push(this._history.push(new Task(t)));
-      }
-      return results;
-    };
+  Transaction.prototype.loadTasks = function(tasks) {
+    var i, len, results, t;
+    if (tasks == null) {
+      tasks = [];
+    }
+    results = [];
+    for (i = 0, len = tasks.length; i < len; i++) {
+      t = tasks[i];
+      results.push(this._history.push(new Task(t)));
+    }
+    return results;
+  };
 
-    return Transaction;
+  return Transaction;
 
-  })();
+})();
 
-  module.exports = Transaction;
-
-}).call(this);
+module.exports = Transaction;

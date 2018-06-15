@@ -30,7 +30,6 @@ configure = ->
   console.log '->'.green, 'configuration file created as', '.dhgate.json'.cyan
 
   # copy base gate to source dir
-  # gatePath = path.join process.cwd(), flags.src, 'gate.coffee'
   srcPath = path.join process.cwd(), flags.src
 
   # assets potential paths for dev and prod
