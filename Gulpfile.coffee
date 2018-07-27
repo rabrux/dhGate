@@ -67,6 +67,7 @@ gulp.task 'watch', ->
 # dev task
 gulp.task 'dev', [
   'build'
+  'run:tests'
   'watch'
 ]
 
