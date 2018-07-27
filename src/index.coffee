@@ -1,6 +1,8 @@
+module.exports =
+  dhGate : require './core'
+
 ###
 # main server file
-###
 
 # packages
 io = require 'socket.io'
@@ -13,14 +15,12 @@ io = io port
 
 # protocol
 io.use require( './protocol/core' ) io
-#require( './protocol/core' ) io
 
 io.on 'connection', ( socket ) ->
   console.log 'client connected', socket.id
 
-
 console.log 'magic happends on', port
 
 module.exports = io
-
+###
 

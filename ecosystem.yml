@@ -1,6 +1,6 @@
 apps:
   - script: ./dist/index.js
-    name: 't4-server-dev'
+    name: 'dhgate-dev'
     watch: ./dist
     merge_logs: true
     restart_delay: 5000
